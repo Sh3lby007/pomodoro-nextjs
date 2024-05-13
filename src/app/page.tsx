@@ -1,5 +1,4 @@
 "use client";
-// pages/index.tsx
 import { useState, useEffect } from "react";
 import { Box, Button, Heading, Text, VStack, Circle, CircularProgress } from "@chakra-ui/react";
 const WORK_MINUTES = 15;
@@ -25,13 +24,11 @@ export default function PomodoroTimer() {
             clearInterval(interval);
             const nextMode = mode === "work" ? "break" : "work";
             setMode(nextMode);
-
             if (mode === "work") {
               setBreakCycles((prevCycles) => prevCycles + 1);
             } else {
               setWorkCycles((prevCycles) => prevCycles + 1);
             }
-
             const nextTime = nextMode === "work" ? WORK_MINUTES * 60 : BREAK_MINUTES * 60;
             setTime(nextTime);
             setIsRunning(true);
