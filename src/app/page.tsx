@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Box, Button, Heading, Text, VStack, Circle, CircularProgress } from "@chakra-ui/react";
-const WORK_MINUTES = 15;
+const WORK_MINUTES = 25;
 const BREAK_MINUTES = 5;
 
 type TimerMode = "work" | "break";
@@ -13,10 +13,10 @@ export default function PomodoroTimer() {
   const [workCycles, setWorkCycles] = useState(0);
   const [breakCycles, setBreakCycles] = useState(0);
   const [isCountdownPlaying, setIsCountdownPlaying] = useState(false);
+  const [firstRender, setfirstRender] = useState<TimerMode | null>(null);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-
     if (isRunning) {
       interval = setInterval(() => {
         setTime((prevTime) => {
@@ -24,14 +24,7 @@ export default function PomodoroTimer() {
             clearInterval(interval);
             const nextMode = mode === "work" ? "break" : "work";
             setMode(nextMode);
-            if (mode === "work") {
-              setBreakCycles((prevCycles) => prevCycles + 1);
-            } else {
-              setWorkCycles((prevCycles) => prevCycles + 1);
-            }
             const nextTime = nextMode === "work" ? WORK_MINUTES * 60 : BREAK_MINUTES * 60;
-            setTime(nextTime);
-            setIsRunning(true);
             setIsCountdownPlaying(false);
             return nextTime;
           } else if (prevTime <= 5 && !isCountdownPlaying) {
@@ -49,12 +42,24 @@ export default function PomodoroTimer() {
         });
       }, 1000);
     }
-
     return () => {
       clearInterval(interval);
     };
-  }, [isRunning, mode, isCountdownPlaying]);
+  }, [isRunning, mode, isCountdownPlaying]);  
 
+  // To keep track of cycles, only after firstRender then start counting
+  useEffect(() => {
+    if (firstRender !== null && firstRender !== mode) {
+      if (mode === "work") {
+        setBreakCycles((prevCycles) => prevCycles + 1);
+      } else {
+        setWorkCycles((prevCycles) => prevCycles + 1);
+      }
+    }
+    setfirstRender(mode);
+  }, [firstRender, mode]);
+
+  
   const minutes = Math.floor(time / 60)
     .toString()
     .padStart(2, "0");
